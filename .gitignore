@@ -34,3 +34,7 @@ tmp/
 *~
 Thumbs.db
 desktop.ini
+
+# Private local documentation (not published to GitHub)
+docs/MAINTAINERS_GUIDE.md
+
