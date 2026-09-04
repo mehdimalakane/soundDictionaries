@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sound Dictionaries NVDA Add-on</title>
+<style>
+body {
+	font-family: sans-serif;
+	line-height: 1.6;
+	margin: 2em;
+	color: #222;
+}
+h1, h2, h3 {
+	color: #003366;
+}
+code, pre {
+	background-color: #f4f4f4;
+	padding: 2px 5px;
+	border-radius: 3px;
+}
+</style>
+</head>
+<body>
+<h1>Sound Dictionaries</h1>
+<div style="background: #eef6fc; border-left: 4px solid #005a9e; padding: 10px 15px; margin: 1.5em 0;">
+	<p><strong>Author:</strong> mehdi malakane (&lt;<a href="mailto:mehdimalakane5@gmail.com">mehdimalakane5@gmail.com</a>&gt;)</p>
+	<p><strong>Repository:</strong> <a href="https://github.com/mehdimalakane/soundDictionaries">https://github.com/mehdimalakane/soundDictionaries</a></p>
+	<p><strong>Development:</strong> Vibecoded using <strong>Gemini 3.8 Flash</strong> and <strong>Antigravity</strong></p>
+	<p><strong>License:</strong> GNU General Public License v2.0</p>
+</div>
+<p>An NVDA add-on that enables assigning custom WAV or MP3 audio file playback to specific phrases across all speech dictionaries.</p>
+
+<h2>Features</h2>
+<ul>
+	<li><strong>Deep Integration:</strong> Fully integrated into NVDA's existing dictionary interface:
+		<ul>
+			<li>Default Dictionary</li>
+			<li>Voice Dictionary</li>
+			<li>Temporary Dictionary</li>
+		</ul>
+	</li>
+	<li><strong>Dual Format Support:</strong> Supports both <code>.wav</code> and <code>.mp3</code> audio files.</li>
+	<li><strong>Automatic Copying:</strong> When an audio file is selected, it is safely copied to the installed add-on's <code>sounds/</code> folder.</li>
+	<li><strong>Preview and Test:</strong> Directly play and preview assigned audio files inside the dictionary entry dialog.</li>
+	<li><strong>Flexible Playback:</strong>
+		<ul>
+			<li>Assign sound only (replaces the spoken phrase with the sound).</li>
+			<li>Assign sound + replacement text (plays the sound and speaks the replacement text).</li>
+		</ul>
+	</li>
+	<li><strong>Exact Speech Synchronization:</strong> Sound playback is synchronized with speech synthesis and stops immediately when speech is cancelled (e.g. pressing <kbd>Control</kbd>).</li>
+	<li><strong>Full Native Persistence:</strong> Stored cleanly using standard NVDA dictionary format with zero corruption risks.</li>
+</ul>
+
+<h2>How to Use</h2>
+<ol>
+	<li>Open NVDA Menu (<kbd>NVDA+N</kbd>) &gt; <strong>Preferences</strong> &gt; <strong>Speech Dictionaries</strong>.</li>
+	<li>Choose <strong>Default dictionary</strong>, <strong>Voice dictionary</strong>, or <strong>Temporary dictionary</strong>.</li>
+	<li>Press <strong>Add</strong> (<kbd>Alt+A</kbd>) or select an existing entry and press <strong>Edit</strong> (<kbd>Alt+E</kbd>).</li>
+	<li>In the entry dialog:
+		<ul>
+			<li>Enter the <strong>Pattern</strong> to match.</li>
+			<li>(Optional) Enter the <strong>Replacement</strong> text. Leave blank if you only want the sound to play.</li>
+			<li>Press <strong>Browse...</strong> (<kbd>Alt+B</kbd>) to select a WAV or MP3 audio file.</li>
+			<li>Press <strong>Play sound</strong> (<kbd>Alt+P</kbd>) to listen to the selected sound.</li>
+			<li>Press <strong>Clear sound</strong> (<kbd>Alt+R</kbd>) if you want to remove an assigned sound.</li>
+		</ul>
+	</li>
+	<li>Click <strong>OK</strong> to save the entry.</li>
+</ol>
+
+<h2>Keyboard Shortcuts in Entry Dialog</h2>
+<ul>
+	<li><kbd>Alt+P</kbd>: Pattern field</li>
+	<li><kbd>Alt+R</kbd>: Replacement field</li>
+	<li><kbd>Alt+C</kbd>: Comment field</li>
+	<li><kbd>Alt+A</kbd>: Audio file field</li>
+	<li><kbd>Alt+B</kbd>: Browse for audio file</li>
+	<li><kbd>Alt+Y</kbd>: Play/preview audio file</li>
+	<li><kbd>Alt+D</kbd>: Clear audio file</li>
+	<li><kbd>Alt+S</kbd>: Case sensitive checkbox</li>
+	<li><kbd>Alt+T</kbd>: Type radio box</li>
+</ul>
+
+<h2>Author & Support</h2>
+<p>Developed by <strong>mehdi malakane</strong> (<a href="mailto:mehdimalakane5@gmail.com">mehdimalakane5@gmail.com</a>).<br>
+Vibecoded using <strong>Gemini 3.8 Flash</strong> and <strong>Antigravity</strong>.</p>
+<p>For feature requests, bug reports, and updates, visit the official GitHub repository:<br>
+<a href="https://github.com/mehdimalakane/soundDictionaries">https://github.com/mehdimalakane/soundDictionaries</a></p>
+
+</body>
+</html>

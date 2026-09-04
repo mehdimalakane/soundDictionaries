@@ -1,0 +1,36 @@
+# Dependencies / Submodules
+nvda_src/
+
+# Built add-on packages
+*.nvda-addon
+
+# Python byte-code and cache
+__pycache__/
+*.py[cod]
+*.class
+*.pyc
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Unit test / coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Logs and temporary files
+*.log
+*.tmp
+temp/
+tmp/
+
+# Editor / OS files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+Thumbs.db
+desktop.ini

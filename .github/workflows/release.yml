@@ -1,0 +1,59 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13'
+
+    - name: Run full test suite
+      run: |
+        python -m unittest discover tests
+
+    - name: Build NVDA Add-on
+      id: build
+      run: |
+        python build_addon.py
+        $addonFile = Get-ChildItem -Path . -Filter "*.nvda-addon" | Select-Object -First 1
+        $sha256 = (Get-FileHash -Path $addonFile.FullName -Algorithm SHA256).Hash.ToLower()
+        Write-Output "ADDON_FILE=$($addonFile.Name)" >> $env:GITHUB_ENV
+        Write-Output "ADDON_PATH=$($addonFile.FullName)" >> $env:GITHUB_ENV
+        Write-Output "ADDON_SHA256=$sha256" >> $env:GITHUB_ENV
+        Write-Output "Built $($addonFile.Name) with SHA256: $sha256"
+
+    - name: Validate add-on package
+      run: |
+        python -m unittest tests/test_packageValidation.py
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: ${{ env.ADDON_PATH }}
+        generate_release_notes: true
+        body: |
+          ## Sound Dictionaries NVDA Add-on Release
+
+          ### Download & Checksum
+          - **File:** `${{ env.ADDON_FILE }}`
+          - **SHA256:** `${{ env.ADDON_SHA256 }}`
+
+          ### NVDA Add-on Store Submission Details
+          - **Download URL:** `https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/${{ env.ADDON_FILE }}`
+          - **Source URL:** `https://github.com/${{ github.repository }}`
+          - **Publisher:** mehdi malakane
+          - **Channel:** stable
+          - **License:** GPL v2 (https://www.gnu.org/licenses/gpl-2.0.html)
