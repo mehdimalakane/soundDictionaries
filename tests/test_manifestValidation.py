@@ -1,7 +1,26 @@
 # Unit tests for manifest validation
 import unittest
 import os
-from configobj import ConfigObj
+try:
+	from configobj import ConfigObj
+except ImportError:
+	def ConfigObj(path_or_stream, encoding="utf-8"):
+		if hasattr(path_or_stream, "read"):
+			lines = path_or_stream.read().decode(encoding).splitlines()
+		elif isinstance(path_or_stream, list):
+			lines = path_or_stream
+		else:
+			with open(path_or_stream, "r", encoding=encoding) as f:
+				lines = f.readlines()
+		d = {}
+		for line in lines:
+			line = line.strip()
+			if line and not line.startswith("#") and "=" in line:
+				k, v = line.split("=", 1)
+				k = k.strip()
+				v = v.strip().strip('"').strip("'")
+				d[k] = v
+		return d
 
 
 class TestManifestValidation(unittest.TestCase):
