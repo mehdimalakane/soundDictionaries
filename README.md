@@ -153,6 +153,13 @@ This will automatically create `soundDictionaries-<version>.nvda-addon` in the r
 
 ---
 
+## 📚 Maintainer & Developer Documentation
+
+- **[Maintainer & Developer Comprehensive Guide](docs/MAINTAINERS_GUIDE.md):** Detailed guide covering architecture, audio engine, CI/CD, and release management.
+- **[NVDA Add-on Store Submission Guide](docs/addon_store_submission.md):** Complete step-by-step instructions for publishing and updating on the official NVDA Add-on Store.
+
+---
+
 ## Author & Credits
 
 - **Author:** **mehdi malakane** (<mehdimalakane5@gmail.com>)
