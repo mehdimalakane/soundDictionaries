@@ -25,10 +25,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install configobj
 
-    - name: Run full test suite
-      run: |
-        python -m unittest discover tests
-
     - name: Build NVDA Add-on
       id: build
       run: |
@@ -40,9 +36,9 @@ jobs:
         Write-Output "ADDON_SHA256=$sha256" >> $env:GITHUB_ENV
         Write-Output "Built $($addonFile.Name) with SHA256: $sha256"
 
-    - name: Validate add-on package
+    - name: Run full test suite
       run: |
-        python -m unittest tests/test_packageValidation.py
+        python -m unittest discover tests
 
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2

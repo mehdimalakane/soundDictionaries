@@ -30,6 +30,11 @@ class TestPackageValidation(unittest.TestCase):
 		self.bundlePath = os.path.abspath(
 			os.path.join(os.path.dirname(__file__), "..", "soundDictionaries-1.0.0.nvda-addon")
 		)
+		if not os.path.isfile(self.bundlePath):
+			import subprocess
+			import sys
+			buildScript = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "build_addon.py"))
+			subprocess.run([sys.executable, buildScript], check=True, cwd=os.path.dirname(buildScript))
 
 	def test_bundleExists(self):
 		self.assertTrue(os.path.isfile(self.bundlePath), f"Add-on bundle not found at {self.bundlePath}")
