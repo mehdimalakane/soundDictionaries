@@ -3,7 +3,10 @@ import unittest
 import os
 import tempfile
 import shutil
-import wx
+try:
+	import wx
+except ImportError:
+	wx = None
 
 import sys
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "soundDictionaries", "globalPlugins")))
@@ -17,50 +20,54 @@ from soundDictionaries.guiExtension import (
 )
 
 
-class MockGuiHelper:
-	class BoxSizerHelper:
-		def __init__(self, parent, orientation=wx.VERTICAL, sizer=None):
-			self.parent = parent
-			self.sizer = sizer or wx.BoxSizer(orientation)
+if wx is not None:
+	class MockGuiHelper:
+		class BoxSizerHelper:
+			def __init__(self, parent, orientation=wx.VERTICAL, sizer=None):
+				self.parent = parent
+				self.sizer = sizer or wx.BoxSizer(orientation)
 
-		def addLabeledControl(self, labelText, controlClass, style=0, choices=None):
-			lbl = wx.StaticText(self.parent, label=labelText)
-			self.sizer.Add(lbl)
-			if choices is not None:
-				ctrl = controlClass(self.parent, choices=choices, style=style)
-			elif style:
-				ctrl = controlClass(self.parent, style=style)
-			else:
-				ctrl = controlClass(self.parent)
-			self.sizer.Add(ctrl)
-			return ctrl
+			def addLabeledControl(self, labelText, controlClass, style=0, choices=None):
+				lbl = wx.StaticText(self.parent, label=labelText)
+				self.sizer.Add(lbl)
+				if choices is not None:
+					ctrl = controlClass(self.parent, choices=choices, style=style)
+				elif style:
+					ctrl = controlClass(self.parent, style=style)
+				else:
+					ctrl = controlClass(self.parent)
+				self.sizer.Add(ctrl)
+				return ctrl
 
-		def addItem(self, item, flag=0):
-			if isinstance(item, MockGuiHelper.ButtonHelper):
-				self.sizer.Add(item.sizer, flag=flag)
-			else:
-				self.sizer.Add(item, flag=flag)
-			return item
+			def addItem(self, item, flag=0):
+				if isinstance(item, MockGuiHelper.ButtonHelper):
+					self.sizer.Add(item.sizer, flag=flag)
+				else:
+					self.sizer.Add(item, flag=flag)
+				return item
 
-		def addDialogDismissButtons(self, flags, separated=True):
-			btnSizer = wx.StdDialogButtonSizer()
-			if flags & wx.OK:
-				btnSizer.AddButton(wx.Button(self.parent, wx.ID_OK))
-			if flags & wx.CANCEL:
-				btnSizer.AddButton(wx.Button(self.parent, wx.ID_CANCEL))
-			btnSizer.Realize()
-			self.sizer.Add(btnSizer)
+			def addDialogDismissButtons(self, flags, separated=True):
+				btnSizer = wx.StdDialogButtonSizer()
+				if flags & wx.OK:
+					btnSizer.AddButton(wx.Button(self.parent, wx.ID_OK))
+				if flags & wx.CANCEL:
+					btnSizer.AddButton(wx.Button(self.parent, wx.ID_CANCEL))
+				btnSizer.Realize()
+				self.sizer.Add(btnSizer)
 
-	class ButtonHelper:
-		def __init__(self, orientation=wx.HORIZONTAL):
-			self.sizer = wx.BoxSizer(orientation)
+		class ButtonHelper:
+			def __init__(self, orientation=wx.HORIZONTAL):
+				self.sizer = wx.BoxSizer(orientation)
 
-		def addButton(self, parent, label):
-			btn = wx.Button(parent, label=label)
-			self.sizer.Add(btn)
-			return btn
+			def addButton(self, parent, label):
+				btn = wx.Button(parent, label=label)
+				self.sizer.Add(btn)
+				return btn
+else:
+	MockGuiHelper = None
 
 
+@unittest.skipIf(wx is None, "wxPython is not installed in the test environment")
 class TestGuiExtension(unittest.TestCase):
 
 	@classmethod

@@ -2,9 +2,11 @@
 # Copyright (C) 2026
 # Licensed under GNU General Public License version 2 or later.
 
+from __future__ import annotations
+
 import os
 from re import error as RegexpError
-from typing import Optional
+from typing import Any, Optional
 
 try:
 	_
@@ -182,7 +184,7 @@ class EnhancedDictionaryEntryDialog(*_entryDialogBases):
 		elif isinstance(entryType, int):
 			self.typeRadioBox.SetSelection(entryType)
 
-	def onSoundFileTextChange(self, evt: wx.CommandEvent) -> None:
+	def onSoundFileTextChange(self, evt: Any) -> None:
 		"""Update button states and internal sound references when text is typed or changed."""
 		val = self.soundFileTextCtrl.GetValue().strip()
 		hasSound = bool(val)
@@ -214,7 +216,7 @@ class EnhancedDictionaryEntryDialog(*_entryDialogBases):
 	def getSoundFileName(self) -> Optional[str]:
 		return self._selectedSoundFileName
 
-	def onBrowseSound(self, evt: wx.CommandEvent) -> None:
+	def onBrowseSound(self, evt: Any) -> None:
 		"""Open file dialog to choose a WAV or MP3 audio file."""
 		wildcard = (
 			"Audio files (*.wav;*.mp3)|*.wav;*.mp3|"
@@ -262,7 +264,7 @@ class EnhancedDictionaryEntryDialog(*_entryDialogBases):
 		finally:
 			dlg.Destroy()
 
-	def onPlaySound(self, evt: wx.CommandEvent) -> None:
+	def onPlaySound(self, evt: Any) -> None:
 		"""Preview the selected audio file."""
 		if self._pendingSoundSourcePath and os.path.isfile(self._pendingSoundSourcePath):
 			soundPlayer.playSound(self._pendingSoundSourcePath)
@@ -273,7 +275,7 @@ class EnhancedDictionaryEntryDialog(*_entryDialogBases):
 			if val:
 				soundPlayer.playSound(val)
 
-	def onClearSound(self, evt: wx.CommandEvent) -> None:
+	def onClearSound(self, evt: Any) -> None:
 		"""Clear the assigned audio file."""
 		soundPlayer.stopAudio()
 		self._pendingSoundSourcePath = None
@@ -291,7 +293,7 @@ class EnhancedDictionaryEntryDialog(*_entryDialogBases):
 		soundPlayer.stopAudio()
 		evt.Skip()
 
-	def onOk(self, evt: wx.CommandEvent) -> None:
+	def onOk(self, evt: Any) -> None:
 		soundPlayer.stopAudio()
 		if not self.patternTextCtrl.GetValue():
 			if gui and hasattr(gui, "messageBox"):
@@ -476,14 +478,14 @@ class EnhancedDictionaryDialog(
 
 		sHelper.addItem(bHelper, flag=wx.EXPAND)
 
-	def onCharHook(self, evt: wx.KeyEvent) -> None:
+	def onCharHook(self, evt: Any) -> None:
 		key = evt.GetKeyCode()
 		if key == wx.WXK_DELETE:
 			self.onRemoveClick(None)
 		else:
 			evt.Skip()
 
-	def onContextMenu(self, evt: wx.ContextMenuEvent) -> None:
+	def onContextMenu(self, evt: Any) -> None:
 		menu = wx.Menu()
 		editItem = menu.Append(wx.ID_ANY, _("&Edit"))
 		removeItem = menu.Append(wx.ID_ANY, _("&Remove"))
@@ -509,7 +511,7 @@ class EnhancedDictionaryDialog(
 			self.speechDict.save()
 		super().onOk(evt)
 
-	def onAddClick(self, evt: wx.CommandEvent) -> None:
+	def onAddClick(self, evt: Any) -> None:
 		entryDialog = EnhancedDictionaryEntryDialog(self, title=_("Add Dictionary Entry"))
 		if entryDialog.ShowModal() == wx.ID_OK:
 			entry = entryDialog.dictEntry
@@ -538,7 +540,7 @@ class EnhancedDictionaryDialog(
 			self.dictList.SetFocus()
 		entryDialog.Destroy()
 
-	def onEditClick(self, evt: wx.CommandEvent) -> None:
+	def onEditClick(self, evt: Any) -> None:
 		if self.dictList.GetSelectedItemCount() != 1:
 			return
 		editIndex = self.dictList.GetFirstSelected()
@@ -580,7 +582,7 @@ class EnhancedDictionaryDialog(
 			index = self.dictList.GetNextSelected(index)
 		self.dictList.SetFocus()
 
-	def onRemoveAll(self, evt: wx.CommandEvent) -> None:
+	def onRemoveAll(self, evt: Any) -> None:
 		if (
 			gui.messageBox(
 				_("Are you sure you want to remove all the entries in this dictionary?"),
