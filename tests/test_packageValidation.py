@@ -27,8 +27,15 @@ except ImportError:
 class TestPackageValidation(unittest.TestCase):
 
 	def setUp(self):
+		manifestPath = os.path.abspath(
+			os.path.join(os.path.dirname(__file__), "..", "soundDictionaries", "manifest.ini")
+		)
+		cfg = ConfigObj(manifestPath, encoding="utf-8")
+		self.expectedName = cfg.get("name", "soundDictionaries")
+		self.expectedVersion = cfg.get("version", "1.0.1")
+		bundleFileName = f"{self.expectedName}-{self.expectedVersion}.nvda-addon"
 		self.bundlePath = os.path.abspath(
-			os.path.join(os.path.dirname(__file__), "..", "soundDictionaries-1.0.0.nvda-addon")
+			os.path.join(os.path.dirname(__file__), "..", bundleFileName)
 		)
 		if not os.path.isfile(self.bundlePath):
 			import subprocess
@@ -70,8 +77,8 @@ class TestPackageValidation(unittest.TestCase):
 			# 4. Validate manifest within archive
 			with zf.open("manifest.ini") as mf:
 				manifest = ConfigObj(mf.read().decode("utf-8").splitlines())
-				self.assertEqual(manifest["name"], "soundDictionaries")
-				self.assertEqual(manifest["version"], "1.0.0")
+				self.assertEqual(manifest["name"], self.expectedName)
+				self.assertEqual(manifest["version"], self.expectedVersion)
 				self.assertTrue(manifest["minimumNVDAVersion"].startswith("2024."))
 
 
