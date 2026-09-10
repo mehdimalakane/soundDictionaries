@@ -6,10 +6,19 @@ import re
 from typing import Optional, Tuple
 
 try:
+	import speechDictHandler
+except ImportError:
+	speechDictHandler = None
+
+try:
 	from speechDictHandler.types import EntryType, SpeechDictEntry
 except ImportError:
-	EntryType = None
-	SpeechDictEntry = None
+	if speechDictHandler:
+		EntryType = getattr(speechDictHandler, "EntryType", None)
+		SpeechDictEntry = getattr(speechDictHandler, "SpeechDictEntry", None)
+	else:
+		EntryType = None
+		SpeechDictEntry = None
 
 try:
 	from logHandler import log

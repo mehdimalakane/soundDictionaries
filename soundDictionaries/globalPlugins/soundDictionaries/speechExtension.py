@@ -15,10 +15,16 @@ except ImportError:
 
 try:
 	import speechDictHandler
-	from speechDictHandler.types import SpeechDict
 except ImportError:
 	speechDictHandler = None
-	SpeechDict = None
+
+try:
+	from speechDictHandler.types import SpeechDict
+except ImportError:
+	if speechDictHandler:
+		SpeechDict = getattr(speechDictHandler, "SpeechDict", None)
+	else:
+		SpeechDict = None
 
 try:
 	from logHandler import log
@@ -144,12 +150,24 @@ def prepareAllLoadedDictionaries() -> None:
 		return
 
 	try:
-		defs = speechDictHandler.definitions._speechDictDefinitions
-		for d in defs:
-			dictionary = getattr(d, "dictionary", None)
-			if dictionary:
-				for entry in dictionary:
-					prepareEntry(entry)
+		# 1. Modern NVDA 2026+ with definitions
+		definitions = getattr(speechDictHandler, "definitions", None)
+		defs = getattr(definitions, "_speechDictDefinitions", None) if definitions else None
+		if defs:
+			for d in defs:
+				dictionary = getattr(d, "dictionary", None)
+				if dictionary:
+					for entry in dictionary:
+						prepareEntry(entry)
+			return
+
+		# 2. Classic NVDA 2024.1 - 2025.x with dictionaries dict
+		dictionaries = getattr(speechDictHandler, "dictionaries", None)
+		if dictionaries and isinstance(dictionaries, dict):
+			for dictionary in dictionaries.values():
+				if dictionary:
+					for entry in dictionary:
+						prepareEntry(entry)
 	except Exception as e:
 		log.debugWarning(f"Error preparing loaded dictionaries: {e}")
 

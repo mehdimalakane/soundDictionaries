@@ -17,6 +17,10 @@ from soundDictionaries import guiExtension
 from soundDictionaries.guiExtension import (
 	EnhancedDictionaryEntryDialog,
 	EnhancedDictionaryDialog,
+	EnhancedDefaultDictionaryDialog,
+	EnhancedVoiceDictionaryDialog,
+	EnhancedTemporaryDictionaryDialog,
+	_getSpeechDictAndTitle,
 )
 
 
@@ -304,6 +308,151 @@ class TestGuiExtension(unittest.TestCase):
 				dlg.Destroy()
 			finally:
 				guiExtension.SpeechDictEntry = origSDE
+		finally:
+			frame.Destroy()
+
+	def test_getSpeechDictAndTitle_modern_public(self):
+		"""Test _getSpeechDictAndTitle with modern NVDA definitions.getDictionaryDefinition (NVDA 2026.2+)."""
+		class MockDef:
+			def __init__(self, displayName, dictionary):
+				self.displayName = displayName
+				self.dictionary = dictionary
+
+		mockDict = ["entry1"]
+		class MockDefinitionsModule:
+			@staticmethod
+			def getDictionaryDefinition(dictType):
+				return MockDef(f"DisplayName for {dictType}", mockDict)
+
+		class MockSpeechDictHandler:
+			definitions = MockDefinitionsModule
+
+		origSDH = guiExtension.speechDictHandler
+		guiExtension.speechDictHandler = MockSpeechDictHandler
+		try:
+			title, d = _getSpeechDictAndTitle("default")
+			self.assertIn("DisplayName for", title)
+			self.assertEqual(d, mockDict)
+
+			title, d = _getSpeechDictAndTitle("voice")
+			self.assertIn("DisplayName for", title)
+			self.assertEqual(d, mockDict)
+
+			title, d = _getSpeechDictAndTitle("temp")
+			self.assertIn("DisplayName for", title)
+			self.assertEqual(d, mockDict)
+		finally:
+			guiExtension.speechDictHandler = origSDH
+
+	def test_getSpeechDictAndTitle_transitional_private(self):
+		"""Test _getSpeechDictAndTitle with transitional _getDictionaryDefinition."""
+		class MockDef:
+			def __init__(self, displayName, dictionary):
+				self.displayName = displayName
+				self.dictionary = dictionary
+
+		mockDict = ["entry2"]
+		class MockDefinitionsModule:
+			@staticmethod
+			def _getDictionaryDefinition(dictType):
+				return MockDef(f"Transitional for {dictType}", mockDict)
+
+		class MockSpeechDictHandler:
+			definitions = MockDefinitionsModule
+
+		origSDH = guiExtension.speechDictHandler
+		guiExtension.speechDictHandler = MockSpeechDictHandler
+		try:
+			title, d = _getSpeechDictAndTitle("default")
+			self.assertEqual(title, "Transitional for DEFAULT" if guiExtension.DictionaryType else "Transitional for default")
+			self.assertEqual(d, mockDict)
+		finally:
+			guiExtension.speechDictHandler = origSDH
+
+	def test_getSpeechDictAndTitle_classic_dictionaries(self):
+		"""Test _getSpeechDictAndTitle with classic NVDA 2024.1-2025.x dictionaries dict."""
+		class MockDict(list):
+			fileName = "en_US.dic"
+
+		defDict = MockDict(["defaultEntry"])
+		voiceDict = MockDict(["voiceEntry"])
+		tempDict = MockDict(["tempEntry"])
+
+		class MockSpeechDictHandler:
+			dictionaries = {
+				"default": defDict,
+				"voice": voiceDict,
+				"temp": tempDict,
+			}
+
+		origSDH = guiExtension.speechDictHandler
+		guiExtension.speechDictHandler = MockSpeechDictHandler
+		try:
+			title, d = _getSpeechDictAndTitle("default")
+			self.assertEqual(title, "Default dictionary")
+			self.assertEqual(d, defDict)
+
+			title, d = _getSpeechDictAndTitle("voice")
+			self.assertIn("en_US.dic", title)
+			self.assertEqual(d, voiceDict)
+
+			title, d = _getSpeechDictAndTitle("temp")
+			self.assertEqual(title, "Temporary dictionary")
+			self.assertEqual(d, tempDict)
+		finally:
+			guiExtension.speechDictHandler = origSDH
+
+	def test_getSpeechDictAndTitle_fallback_none(self):
+		"""Test _getSpeechDictAndTitle gracefully returns default titles when handler is None."""
+		origSDH = guiExtension.speechDictHandler
+		guiExtension.speechDictHandler = None
+		try:
+			title, d = _getSpeechDictAndTitle("default")
+			self.assertEqual(title, "Default dictionary")
+			self.assertIsNone(d)
+
+			title, d = _getSpeechDictAndTitle("voice")
+			self.assertEqual(title, "Voice dictionary")
+			self.assertIsNone(d)
+
+			title, d = _getSpeechDictAndTitle("temp")
+			self.assertEqual(title, "Temporary dictionary")
+			self.assertIsNone(d)
+		finally:
+			guiExtension.speechDictHandler = origSDH
+
+	def test_enhancedDefaultDialog_instantiation_no_attribute_error(self):
+		"""Verify EnhancedDefaultDictionaryDialog, Voice, and Temp instantiate cleanly without AttributeError."""
+		frame = wx.Frame(None)
+		try:
+			# Test with classic dictionaries
+			class MockDict(list):
+				fileName = "test.dic"
+				def save(self): pass
+
+			class MockSpeechDictHandler:
+				dictionaries = {
+					"default": MockDict(),
+					"voice": MockDict(),
+					"temp": MockDict(),
+				}
+
+			origSDH = guiExtension.speechDictHandler
+			guiExtension.speechDictHandler = MockSpeechDictHandler
+			try:
+				dlgDef = EnhancedDefaultDictionaryDialog(frame)
+				self.assertEqual(dlgDef.title, "Default dictionary")
+				dlgDef.Destroy()
+
+				dlgVoice = EnhancedVoiceDictionaryDialog(frame)
+				self.assertIn("Voice dictionary", dlgVoice.title)
+				dlgVoice.Destroy()
+
+				dlgTemp = EnhancedTemporaryDictionaryDialog(frame)
+				self.assertEqual(dlgTemp.title, "Temporary dictionary")
+				dlgTemp.Destroy()
+			finally:
+				guiExtension.speechDictHandler = origSDH
 		finally:
 			frame.Destroy()
 

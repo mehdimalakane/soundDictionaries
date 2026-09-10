@@ -31,15 +31,27 @@ except ImportError:
 
 try:
 	import globalVars
-	import speechDictHandler
-	from speechDictHandler.types import DictionaryType, EntryType, SpeechDict, SpeechDictEntry
 except ImportError:
 	globalVars = None
+
+try:
+	import speechDictHandler
+except ImportError:
 	speechDictHandler = None
-	DictionaryType = None
-	EntryType = None
-	SpeechDict = None
-	SpeechDictEntry = None
+
+try:
+	from speechDictHandler.types import DictionaryType, EntryType, SpeechDict, SpeechDictEntry
+except ImportError:
+	if speechDictHandler:
+		DictionaryType = getattr(speechDictHandler, "DictionaryType", None)
+		EntryType = getattr(speechDictHandler, "EntryType", None)
+		SpeechDict = getattr(speechDictHandler, "SpeechDict", None)
+		SpeechDictEntry = getattr(speechDictHandler, "SpeechDictEntry", None)
+	else:
+		DictionaryType = None
+		EntryType = None
+		SpeechDict = None
+		SpeechDictEntry = None
 
 try:
 	from logHandler import log
@@ -598,33 +610,87 @@ class EnhancedDictionaryDialog(
 		self.dictList.SetFocus()
 
 
+def _getSpeechDictAndTitle(dictTypeStr: str) -> tuple[str, Any]:
+	"""Retrieve the title and speech dictionary instance for a given dictionary type.
+	Compatible with NVDA 2024.1 through 2026.2+ and master.
+
+	:param dictTypeStr: One of 'default', 'voice', or 'temp'.
+	:return: A tuple of (title, speechDict).
+	"""
+	# 1. Try modern NVDA 2026+ definitions architecture
+	definitions = getattr(speechDictHandler, "definitions", None) if speechDictHandler else None
+	if definitions:
+		getDef = (
+			getattr(definitions, "getDictionaryDefinition", None)
+			or getattr(definitions, "_getDictionaryDefinition", None)
+		)
+		if callable(getDef):
+			typeKey = None
+			if DictionaryType:
+				attrName = {"default": "DEFAULT", "voice": "VOICE", "temp": "TEMP"}.get(dictTypeStr)
+				if attrName:
+					typeKey = getattr(DictionaryType, attrName, None)
+			if typeKey is None:
+				typeKey = dictTypeStr
+			try:
+				definition = getDef(typeKey)
+				if definition:
+					displayName = getattr(definition, "displayName", "")
+					dictionary = getattr(definition, "dictionary", None)
+					if displayName and dictionary is not None:
+						return displayName, dictionary
+			except Exception as e:
+				log.debug(f"definitions API lookup failed for {dictTypeStr}: {e}")
+
+	# 2. Try classic NVDA 2024.1 - 2025.x dictionaries dictionary
+	dictionaries = getattr(speechDictHandler, "dictionaries", None) if speechDictHandler else None
+	if dictionaries and dictTypeStr in dictionaries:
+		d = dictionaries[dictTypeStr]
+		if dictTypeStr == "default":
+			return _("Default dictionary"), d
+		elif dictTypeStr == "voice":
+			fileName = getattr(d, "fileName", "")
+			title = (_("Voice dictionary (%s)") % fileName) if fileName else _("Voice dictionary")
+			return title, d
+		elif dictTypeStr == "temp":
+			return _("Temporary dictionary"), d
+
+	# 3. Fallback defaults if speechDictHandler is not yet fully loaded
+	defaultTitles = {
+		"default": _("Default dictionary"),
+		"voice": _("Voice dictionary"),
+		"temp": _("Temporary dictionary"),
+	}
+	return defaultTitles.get(dictTypeStr, _("Speech Dictionary")), None
+
+
 class EnhancedDefaultDictionaryDialog(EnhancedDictionaryDialog):
 	def __init__(self, parent: Optional[wx.Window]):
-		definition = speechDictHandler.definitions._getDictionaryDefinition(DictionaryType.DEFAULT)
+		title, speechDict = _getSpeechDictAndTitle("default")
 		super().__init__(
 			parent,
-			title=definition.displayName,
-			speechDict=definition.dictionary,
+			title=title,
+			speechDict=speechDict,
 		)
 
 
 class EnhancedVoiceDictionaryDialog(EnhancedDictionaryDialog):
 	def __init__(self, parent: Optional[wx.Window]):
-		definition = speechDictHandler.definitions._getDictionaryDefinition(DictionaryType.VOICE)
+		title, speechDict = _getSpeechDictAndTitle("voice")
 		super().__init__(
 			parent,
-			title=definition.displayName,
-			speechDict=definition.dictionary,
+			title=title,
+			speechDict=speechDict,
 		)
 
 
 class EnhancedTemporaryDictionaryDialog(EnhancedDictionaryDialog):
 	def __init__(self, parent: Optional[wx.Window]):
-		definition = speechDictHandler.definitions._getDictionaryDefinition(DictionaryType.TEMP)
+		title, speechDict = _getSpeechDictAndTitle("temp")
 		super().__init__(
 			parent,
-			title=definition.displayName,
-			speechDict=definition.dictionary,
+			title=title,
+			speechDict=speechDict,
 		)
 
 

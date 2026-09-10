@@ -2,7 +2,6 @@
 
 **Author:** mehdi malakane (<mehdimalakane5@gmail.com>)  
 **Repository:** https://github.com/mehdimalakane/soundDictionaries  
-**Development:** Vibecoded using **Gemini 3.8 Flash** and **Antigravity**  
 **License:** GNU General Public License v2.0  
 
 ---
@@ -50,9 +49,18 @@
 - Alt+S: Case sensitive checkbox
 - Alt+T: Match type (Anywhere, Whole word, Regular expression)
 
+## Change Log
+
+### Version 1.0.1
+- Fixed Speech Dictionary dialog compatibility across NVDA versions (2024.1 through 2026.2+).
+- Fixed unhandled exception when opening Default, Voice, or Temporary Dictionary dialogs.
+- Robust fallback support for both classic dictionary dictionaries and modern definitions API.
+
+### Version 1.0.0
+- Initial release with integrated WAV/MP3 sound assignment in speech dictionaries.
+
 ## Author & Support
 
 Developed by **mehdi malakane** (<mehdimalakane5@gmail.com>).  
-Vibecoded using **Gemini 3.8 Flash** and **Antigravity**.  
 
 GitHub Repository: https://github.com/mehdimalakane/soundDictionaries
